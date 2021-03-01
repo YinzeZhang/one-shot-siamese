@@ -189,12 +189,12 @@ class Trainer(object):
         tic = time.time()
         with tqdm(total=self.num_train) as pbar:
             for i, (x1, x2, y) in enumerate(self.train_loader):
+                # split input pairs along the batch dimension
+                batch_size = x1.shape[0]
+
                 if self.use_gpu:
                     x1, x2, y = x1.cuda(), x2.cuda(), y.cuda()
                 x1, x2, y = Variable(x1), Variable(x2), Variable(y)
-
-                # split input pairs along the batch dimension
-                batch_size = x1.shape[0]
 
                 out = self.model(x1, x2)
                 loss = F.binary_cross_entropy_with_logits(out, y)
@@ -206,7 +206,7 @@ class Trainer(object):
 
                 # store batch statistics
                 toc = time.time()
-                train_losses.update(loss.data[0], batch_size)
+                train_losses.update(loss.data, batch_size)
                 train_batch_time.update(toc-tic)
                 tic = time.time()
 
